@@ -34,13 +34,12 @@ import com.example.amphibians.ui.screens.HomeScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AmphibiansApp() {
+    val amphibiansViewModel: AmphibiansViewModel = viewModel(factory = AmphibiansViewModel.Factory)
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                /**
-                 * Menampilkan top bar dengan judul aplikasi.
-                 */
                 title = {
                     Text(
                         stringResource(R.string.app_name),
@@ -50,20 +49,15 @@ fun AmphibiansApp() {
             )
         }
     ) {
-        /**
-         * Menampilkan konten aplikasi pada area utama dengan warna latar belakang dari tema.
-         */
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            val amphibiansViewModel: AmphibiansViewModel =
-                viewModel(factory = AmphibiansViewModel.Factory)
-            /**
-             * Menampilkan home screen dengan status UI yang diambil dari AmphibiansViewModel.
-             */
             HomeScreen(
                 amphibiansUiState = amphibiansViewModel.amphibiansUiState,
+                selectedAmphibian = amphibiansViewModel.selectedAmphibian,
+                onAmphibianSelected = amphibiansViewModel::selectAmphibian,
+                onBack = amphibiansViewModel::clearSelection,
                 retryAction = amphibiansViewModel::getAmphibians,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = it

@@ -17,6 +17,7 @@
 package com.example.amphibians.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,27 +58,97 @@ import com.example.amphibians.ui.theme.AmphibiansTheme
 @Composable
 fun HomeScreen(
     amphibiansUiState: AmphibiansUiState,
+    selectedAmphibian: Amphibian?,
+    onAmphibianSelected: (Amphibian) -> Unit,
+    onBack: () -> Unit,
     retryAction: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    when (amphibiansUiState) {
-        is AmphibiansUiState.Loading -> LoadingScreen(modifier.size(200.dp))
-        is AmphibiansUiState.Success ->
-            AmphibiansListScreen(
-                amphibians = amphibiansUiState.amphibians,
-                modifier = modifier
-                    .padding(
+    if (selectedAmphibian != null) {
+        AmphibianDetailScreen(
+            amphibian = selectedAmphibian,
+            onBack = onBack,
+            modifier = modifier
+        )
+    } else {
+        when (amphibiansUiState) {
+            is AmphibiansUiState.Loading -> LoadingScreen(modifier.size(200.dp))
+            is AmphibiansUiState.Success ->
+                AmphibianList(
+                    amphibians = amphibiansUiState.amphibians,
+                    onAmphibianSelected = onAmphibianSelected,
+                    modifier = modifier.padding(
                         start = dimensionResource(R.dimen.padding_medium),
                         top = dimensionResource(R.dimen.padding_medium),
                         end = dimensionResource(R.dimen.padding_medium)
                     ),
-                contentPadding = contentPadding
-            )
-        else -> ErrorScreen(retryAction, modifier)
+                    contentPadding = contentPadding
+                )
+
+            else -> ErrorScreen(retryAction, modifier)
+        }
+    }
+}
+@Composable
+fun AmphibianDetailScreen(
+    amphibian: Amphibian,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = amphibian.name,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(amphibian.imgSrc)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            modifier = Modifier.fillMaxWidth(),
+            contentScale = ContentScale.FillWidth
+        )
+        Text(
+            text = amphibian.description,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))
+        )
+        Button(onClick = onBack, modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
+            Text(text = "Back to List")
+        }
     }
 }
 
+@Composable
+fun AmphibianList(
+    amphibians: List<Amphibian>,
+    onAmphibianSelected: (Amphibian) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(amphibians) { amphibian ->
+            Text(
+                text = amphibian.name,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onAmphibianSelected(amphibian) }
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            )
+        }
+    }
+}
 /**
  * Menampilkan pesan pemuatan saat data sedang dimuat.
  */

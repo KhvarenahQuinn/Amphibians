@@ -60,6 +60,8 @@ class AmphibiansViewModel(private val amphibiansRepository: AmphibiansRepository
      */
     var amphibiansUiState: AmphibiansUiState by mutableStateOf(AmphibiansUiState.Loading)
         private set
+    var selectedAmphibian: Amphibian? by mutableStateOf(null)
+        private set
 
     init {
         getAmphibians()
@@ -78,6 +80,12 @@ class AmphibiansViewModel(private val amphibiansRepository: AmphibiansRepository
                 AmphibiansUiState.Error
             }
         }
+    }
+    fun selectAmphibian(amphibian: Amphibian) {
+        selectedAmphibian = amphibian
+    }
+    fun clearSelection() {
+        selectedAmphibian = null
     }
 
     /**
