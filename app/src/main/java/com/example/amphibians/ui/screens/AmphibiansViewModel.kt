@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.amphibians.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -58,6 +42,7 @@ class AmphibiansViewModel(private val amphibiansRepository: AmphibiansRepository
     /**
      * Status UI saat ini, dimulai dengan status `Loading`.
      */
+
     var amphibiansUiState: AmphibiansUiState by mutableStateOf(AmphibiansUiState.Loading)
         private set
     var selectedAmphibian: Amphibian? by mutableStateOf(null)
@@ -81,9 +66,22 @@ class AmphibiansViewModel(private val amphibiansRepository: AmphibiansRepository
             }
         }
     }
+
+    fun onHomeSelected() {
+        // Reset selectedAmphibian menjadi null ketika tombol home dipilih
+        selectedAmphibian = null
+    }
+    /**
+     * Menyeting amfibi yang dipilih.
+     * Digunakan untuk memilih amfibi dari daftar.
+     */
     fun selectAmphibian(amphibian: Amphibian) {
         selectedAmphibian = amphibian
     }
+    /**
+     * Menghapus pemilihan amfibi.
+     * Digunakan untuk membatalkan pemilihan amfibi.
+     */
     fun clearSelection() {
         selectedAmphibian = null
     }

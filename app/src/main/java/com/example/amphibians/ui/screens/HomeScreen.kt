@@ -1,40 +1,38 @@
-/*
- * Copyright (C) 2023 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.amphibians.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -42,6 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -59,6 +58,8 @@ import com.example.amphibians.ui.theme.AmphibiansTheme
 fun HomeScreen(
     amphibiansUiState: AmphibiansUiState,
     selectedAmphibian: Amphibian?,
+    onHomeSelected: () -> Unit,
+    onCategorySelected: () -> Unit,
     onAmphibianSelected: (Amphibian) -> Unit,
     onBack: () -> Unit,
     retryAction: () -> Unit,
@@ -68,14 +69,13 @@ fun HomeScreen(
     if (selectedAmphibian != null) {
         AmphibianDetailScreen(
             amphibian = selectedAmphibian,
-            onBack = onBack,
             modifier = modifier
         )
     } else {
         when (amphibiansUiState) {
-            is AmphibiansUiState.Loading -> LoadingScreen(modifier.size(200.dp))
+            is AmphibiansUiState.Loading -> LoadingScreen(modifier.size(200.dp))// Menampilkan screen loading
             is AmphibiansUiState.Success ->
-                AmphibianList(
+                AmphibianListKu(
                     amphibians = amphibiansUiState.amphibians,
                     onAmphibianSelected = onAmphibianSelected,
                     modifier = modifier.padding(
@@ -86,44 +86,153 @@ fun HomeScreen(
                     contentPadding = contentPadding
                 )
 
-            else -> ErrorScreen(retryAction, modifier)
+            else -> ErrorScreen(retryAction, modifier) // Menampilkan error screen jika gagal
         }
+//        BottomBar(
+//            onHomeSelected = onHomeSelected,
+//            onCategorySelected = onCategorySelected,
+//            modifier = Modifier.fillMaxWidth()
+//        )
     }
 }
 @Composable
-fun AmphibianDetailScreen(
-    amphibian: Amphibian,
-    onBack: () -> Unit,
+fun BottomBar(
+    onHomeSelected: () -> Unit,
+    onCategorySelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+//            .padding(8.dp) // Padding agar tidak terlalu rapat ke tepi
+            .background(MaterialTheme.colorScheme.primary), // Memberikan background sesuai dengan tema
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = amphibian.name,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(amphibian.imgSrc)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth
-        )
-        Text(
-            text = amphibian.description,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))
-        )
-        Button(onClick = onBack, modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_medium))) {
-            Text(text = "Back to List")
+        // Tombol Home
+        Button(
+            onClick = onHomeSelected,
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_home),
+                contentDescription = stringResource(R.string.home),
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = stringResource(R.string.home))
+        }
+
+        // Tombol Category
+        Button(
+            onClick = onCategorySelected,
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_categories),
+                contentDescription = stringResource(R.string.category),
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = stringResource(R.string.category))
         }
     }
 }
+
+
+@Composable
+fun AmphibianListKu(
+    amphibians: List<Amphibian>,
+    onAmphibianSelected: (Amphibian) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = modifier,
+        contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(amphibians + amphibians + amphibians) { amphibian ->
+            AmphibianCard(
+                amphibian = amphibian,
+                modifier = Modifier
+                    .clickable { onAmphibianSelected(amphibian) }
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            )
+        }
+    }
+}
+
+
+@Composable
+fun AmphibianDetailScreen(
+    amphibian: Amphibian,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues()
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp, top = 24.dp) // Margin sekitar kolom
+            .verticalScroll(rememberScrollState()) // Agar konten bisa digulir
+    ) {
+        // Nama Item
+        Text(
+            text = amphibian.name,
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp) // Padding bawah
+        )
+
+        // Gambar Item
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .padding(bottom = 16.dp)
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(amphibian.imgSrc)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.small),
+                contentScale = ContentScale.Crop
+            )
+        }
+        // Type Item
+        Text(
+            text = amphibian.type,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        // Deskripsi Item
+        Text(
+            text = amphibian.description,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 14.dp)
+        )
+    }
+}
+
+
+
+
+
 
 @Composable
 fun AmphibianList(
@@ -149,6 +258,45 @@ fun AmphibianList(
         }
     }
 }
+
+@Composable
+fun AmphibianListCat(
+    selectedAmphibian: Amphibian?,
+    onAmphibianSelected: (Amphibian) -> Unit,
+    onAmphibianDetailSelected: (Amphibian) -> Unit, // Parameter baru
+    onBack: () -> Unit, // Tambahkan parameter untuk aksi kembali
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    // Periksa apakah ada amphibian yang dipilih
+    if (selectedAmphibian != null) {
+        val repeatedAmphibians = List(20) { selectedAmphibian }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = modifier,
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(repeatedAmphibians) { amphibian ->
+                AmphibianCard(
+                    amphibian = amphibian,
+                    modifier = Modifier
+                        .clickable { onAmphibianDetailSelected(amphibian) }
+                        .padding(dimensionResource(R.dimen.padding_medium))
+                )
+            }
+        }
+    } else {
+        Text(
+            text = stringResource(R.string.no_selection),
+            modifier = modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+
 /**
  * Menampilkan pesan pemuatan saat data sedang dimuat.
  */
@@ -187,10 +335,13 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun AmphibianCard(amphibian: Amphibian, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .heightIn(250.dp)
+        ,
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Menampilkan nama dengan maxLines dan overflow
             Text(
                 text = stringResource(R.string.amphibian_title, amphibian.name, amphibian.type),
                 modifier = Modifier
@@ -198,7 +349,9 @@ fun AmphibianCard(amphibian: Amphibian, modifier: Modifier = Modifier) {
                     .padding(dimensionResource(R.dimen.padding_medium)),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                maxLines = 1, // Membatasi nama hanya 1 baris
+                overflow = TextOverflow.Ellipsis // Menambahkan titik-titik jika teks terlalu panjang
             )
             AsyncImage(
                 modifier = Modifier.fillMaxWidth(),
@@ -211,15 +364,10 @@ fun AmphibianCard(amphibian: Amphibian, modifier: Modifier = Modifier) {
                 error = painterResource(id = R.drawable.ic_broken_image),
                 placeholder = painterResource(id = R.drawable.loading_img)
             )
-            Text(
-                text = amphibian.description,
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Justify,
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
-            )
         }
     }
 }
+
 
 /**
  * Menampilkan daftar amfibi dalam bentuk LazyColumn.
@@ -248,41 +396,3 @@ private fun AmphibiansListScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoadingScreenPreview() {
-    AmphibiansTheme {
-        LoadingScreen(
-            Modifier
-                .fillMaxSize()
-                .size(200.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ErrorScreenPreview() {
-    AmphibiansTheme {
-        ErrorScreen({}, Modifier.fillMaxSize())
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AmphibiansListScreenPreview() {
-    AmphibiansTheme {
-        val mockData = List(10) {
-            Amphibian(
-                "Lorem Ipsum - $it",
-                "$it",
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do" +
-                        " eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad" +
-                        " minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip" +
-                        " ex ea commodo consequat.",
-                imgSrc = ""
-            )
-        }
-        AmphibiansListScreen(mockData, Modifier.fillMaxSize())
-    }
-}
