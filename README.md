@@ -1,4 +1,7 @@
 Screenshot:
 <br>
-![Home Screen](https://github.com/KhvarenahQuinn/Amphibians/blob/master/SS/Homescreen.png)
-![Detail Screen](https://github.com/KhvarenahQuinn/Amphibians/blob/master/SS/DetailScreen.png)
+![Home Screen](/SS/Home.png)
+![Detail Screen](/SS/Home_Detail.png)
+![Category List](/SS/Category.png)
+![Category Item List](/SS/Category_Item.png)
+![Category Item Detail](/SS/Category_Item_Detail.png)
